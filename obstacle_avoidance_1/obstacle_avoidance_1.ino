@@ -13,15 +13,21 @@
 
 // Sonar
 #define SONAR_TRIGGER_PIN  8
-#define SERVO              9
+#define SERVO_PIN          9
 #define SONAR_ECHO_PIN     10
 
 // Bump Sensors
-#define BUMP_LEFT          11
-#define BUMP_MIDDLE        12
-#define BUMP_RIGHT         13
+#define BUMP_LEFT_PIN      11
+#define BUMP_MIDDLE_PIN    12
+#define BUMP_RIGHT_PIN     13
 
+// Wheel encoders
+#define ENCODER_LEFT_PIN   A0
+#define ENCODER_RIGHT_PIN  A1
 
+// Cliff sensors
+#define CLIFF_LEFT_PIN     A3
+#define CLIFF_RIGHT_PIN    A4
 
 /* =======================
  * Other definitions
