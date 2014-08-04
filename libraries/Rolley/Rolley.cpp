@@ -5,6 +5,9 @@
 #endif
 #include <Rolley.h>
 
+static uint8_t current_pos = 0;
+static uint8_t increment = 1;
+
 Rolley::Rolley() : 
     _sonar_obstacle_distance(SONAR_OBSTACLE_DISTANCE),
     _servo_range_start(0),
@@ -23,6 +26,8 @@ Rolley::Rolley(uint8_t _obstacle_distance) :
 
 void Rolley::setup() 
 {
+    Servo myservo;
+
     // Setup motors
     pinMode(LEFT_MOTOR_DIRECTION_PIN, OUTPUT);
     pinMode(RIGHT_MOTOR_DIRECTION_PIN, OUTPUT);
@@ -35,8 +40,8 @@ void Rolley::setup()
     this->_sonar = &NewPing(SONAR_TRIGGER_PIN, SONAR_ECHO_PIN, SONAR_MAX_DISTANCE);
 
     // Setup servo
-    //this->_servo.attach(SERVO_PIN);
-    //this->_servo.write(90); // point straight ahead to begin with
+    this->_myservo = &myservo;
+    this->_myservo->attach(SERVO_PIN);
 
     // Setup bump sensors
     pinMode(BUMP_LEFT_PIN, INPUT);
@@ -208,12 +213,12 @@ boolean Rolley::is_sonar_wall()
 
 uint8_t Rolley::servo_get_position()
 {
-    return (this->_servo.read());
+    return (this->_myservo->read());
 }
 
-void Rolley::servo_set_position(uint8_t pos)
+void Rolley::servo_set_position(int pos)
 {
-    this->_servo.write(pos);
+    this->_myservo->write(pos);
 }
 
 void Rolley::servo_set_scan_range(uint8_t start = 0, uint8_t end = 180)
@@ -224,19 +229,18 @@ void Rolley::servo_set_scan_range(uint8_t start = 0, uint8_t end = 180)
 
 void Rolley::servo_scan()
 {
-    static uint8_t current_pos = this->servo_get_position();
-    static uint8_t increment = 1;
+    current_pos = this->servo_get_position();
 
     if (current_pos < this->_servo_range_start) {
         this->servo_set_position(this->_servo_range_start);
         current_pos = this->_servo_range_start;
-        delay(15);
+        delay(50);
     }
 
     if (current_pos > this->_servo_range_end) {
         this->servo_set_position(this->_servo_range_end);
         current_pos = this->_servo_range_end;
-        delay(15);
+        delay(50);
     }
 
     if (current_pos + increment > this->_servo_range_start) {
@@ -247,7 +251,7 @@ void Rolley::servo_scan()
     }
     current_pos += increment;
     this->servo_set_position(current_pos);
-    delay(15);
+    delay(50);
 }
 
 float Rolley::encoders_left_distance()
