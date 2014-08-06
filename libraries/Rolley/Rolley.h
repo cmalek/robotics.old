@@ -1,11 +1,11 @@
 #ifndef Rolley_h
 #define Rolley_h
 
-#include <NewPing.h>
 #include <Encoders.h>
 #include <Drive.h>
 #include <Bump.h>
 #include <RolleyServo.h>
+#include <Sonar.h>
 
 // Motors 
 #define LEFT_MOTOR_DIRECTION_PIN    4
@@ -37,27 +37,19 @@
  * Other definitions
  * ======================= */
 
-#define LEFT                        1
-#define RIGHT                       2
-
 #define SONAR_MAX_DISTANCE          200
-#define SONAR_OBSTACLE_DISTANCE     15
-
-#define MOTOR_FORWARD               HIGH
-#define MOTOR_REVERSE               LOW
 
 class Rolley
 {
     public:
         Rolley();
-        void setup(Servo *);
+        void setup(Servo *, NewPing *);
 
         void forward(uint8_t speed);
         void backward(uint8_t speed);
         void spin(uint8_t direction, uint8_t speed);
         void stop();
 
-        NewPing *sonar;
         float sonar_get_distance();
         boolean is_sonar_wall();
 
@@ -85,11 +77,10 @@ class Rolley
         void motor_test();
         void sensor_test();
     private:
-        uint8_t _sonar_obstacle_distance;
-
         rolley::Drive _motors;
         rolley::Bump _bump;
         rolley::RolleyServo _servo;
+        rolley::Sonar _sonar;
 
         Encoders _encoders;
 };

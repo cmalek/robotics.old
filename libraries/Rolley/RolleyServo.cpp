@@ -3,7 +3,7 @@
 #else
 #include "WProgram.h"
 #endif
-#include <Rolley.h>
+#include <RolleyServo.h>
 
 namespace rolley
 {

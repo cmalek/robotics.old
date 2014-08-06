@@ -5,11 +5,9 @@
 #endif
 #include <Rolley.h>
 
-Rolley::Rolley() : 
-    _sonar_obstacle_distance(SONAR_OBSTACLE_DISTANCE)
-{}
+Rolley::Rolley() {}
 
-void Rolley::setup(Servo *servo) 
+void Rolley::setup(Servo *servo, NewPing *sonar) 
 {
     // Setup motors
     this->_motors.setup(LEFT_MOTOR_DIRECTION_PIN,
@@ -19,7 +17,8 @@ void Rolley::setup(Servo *servo)
 
     this->_servo.setup(servo, SERVO_PIN);
     this->_bump.setup(BUMP_LEFT_PIN, BUMP_MIDDLE_PIN, BUMP_RIGHT_PIN);
-    //
+    this->_sonar.setup(sonar);
+    
     // Setup wheel encoders
     this->_encoders = Encoders();
     this->_encoders.setup();
@@ -75,16 +74,12 @@ void Rolley::stop()
 
 float Rolley::sonar_get_distance()
 {
-  return(this->sonar->ping_median() / US_ROUNDTRIP_CM);
+  return(this->_sonar.get_distance());
 }
 
 boolean Rolley::is_sonar_wall()
 {
-  float cm = this->sonar_get_distance();
-  if ((cm > 0) && (cm < this->_sonar_obstacle_distance)) {
-    return true;
-  }
-  return false;
+  return(this->_sonar.is_wall());
 }
 
 //
@@ -202,6 +197,8 @@ void Rolley::sensor_test()
 {
     String status = String("");
     status += this->_servo.test();
+    status += '|';
+    status += this->_sonar.test();
     status += '|';
     status += this->_bump.test();
     Serial.println(status);
