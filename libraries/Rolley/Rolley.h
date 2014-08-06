@@ -81,7 +81,6 @@ class Rolley
         rolley::Bump _bump;
         rolley::RolleyServo _servo;
         rolley::Sonar _sonar;
-
-        Encoders _encoders;
+        rolley::Encoders _encoders;
 };
 #endif

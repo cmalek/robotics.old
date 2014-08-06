@@ -14,13 +14,9 @@ void Rolley::setup(Servo *servo, NewPing *sonar)
                         LEFT_MOTOR_SPEED_PIN,
                         RIGHT_MOTOR_DIRECTION_PIN,
                         RIGHT_MOTOR_SPEED_PIN);
-
     this->_servo.setup(servo, SERVO_PIN);
     this->_bump.setup(BUMP_LEFT_PIN, BUMP_MIDDLE_PIN, BUMP_RIGHT_PIN);
     this->_sonar.setup(sonar);
-    
-    // Setup wheel encoders
-    this->_encoders = Encoders();
     this->_encoders.setup();
  
     // Setup cliff sensors
@@ -201,5 +197,7 @@ void Rolley::sensor_test()
     status += this->_sonar.test();
     status += '|';
     status += this->_bump.test();
+    status += '|';
+    status += this->_encoders.test();
     Serial.println(status);
 }
