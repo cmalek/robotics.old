@@ -1,11 +1,11 @@
 #ifndef Rolley_h
 #define Rolley_h
 
-#include <Servo.h>
 #include <NewPing.h>
 #include <Encoders.h>
 #include <Drive.h>
 #include <Bump.h>
+#include <RolleyServo.h>
 
 // Motors 
 #define LEFT_MOTOR_DIRECTION_PIN    4
@@ -50,7 +50,7 @@ class Rolley
 {
     public:
         Rolley();
-        void setup();
+        void setup(Servo *);
 
         void forward(uint8_t speed);
         void backward(uint8_t speed);
@@ -61,13 +61,10 @@ class Rolley
         float sonar_get_distance();
         boolean is_sonar_wall();
 
-        Servo *servo;
         int servo_get_position();
         void servo_set_position(int);
         void servo_set_scan_range(int, int);
         void servo_scan();
-        int servo_pos;
-        int servo_increment;
 
         boolean bump_update();
         boolean is_bump();
@@ -90,11 +87,9 @@ class Rolley
     private:
         uint8_t _sonar_obstacle_distance;
 
-        int _servo_range_start;
-        int _servo_range_end;
-
         rolley::Drive _motors;
         rolley::Bump _bump;
+        rolley::RolleyServo _servo;
 
         Encoders _encoders;
 };

@@ -10,9 +10,8 @@ Rolley robot = Rolley();
 
 
 void setup() {
-  robot.servo = &servo;
   robot.sonar = &sonar;
-  robot.setup();
+  robot.setup(&servo);
   Serial.begin(115200);
 }
 

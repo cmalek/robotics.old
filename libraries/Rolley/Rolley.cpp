@@ -6,14 +6,10 @@
 #include <Rolley.h>
 
 Rolley::Rolley() : 
-    _servo_range_start(0),
-    _servo_range_end(180),
-    servo_pos(90),
-    servo_increment(1),
     _sonar_obstacle_distance(SONAR_OBSTACLE_DISTANCE)
 {}
 
-void Rolley::setup() 
+void Rolley::setup(Servo *servo) 
 {
     // Setup motors
     this->_motors.setup(LEFT_MOTOR_DIRECTION_PIN,
@@ -21,11 +17,7 @@ void Rolley::setup()
                         RIGHT_MOTOR_DIRECTION_PIN,
                         RIGHT_MOTOR_SPEED_PIN);
 
-    // Setup servo
-    this->servo->attach(SERVO_PIN);
-    this->servo_set_position(this->servo_pos);
-    delay(100);
-
+    this->_servo.setup(servo, SERVO_PIN);
     this->_bump.setup(BUMP_LEFT_PIN, BUMP_MIDDLE_PIN, BUMP_RIGHT_PIN);
     //
     // Setup wheel encoders
@@ -101,43 +93,22 @@ boolean Rolley::is_sonar_wall()
 
 int Rolley::servo_get_position()
 {
-    return (this->servo_pos);
+    return (this->_servo.get_position());
 }
 
 void Rolley::servo_set_position(int pos)
 {
-    this->servo->write(pos);
+    this->_servo.set_position(pos);
 }
 
 void Rolley::servo_set_scan_range(int start = 0, int end = 180)
 {
-    this->_servo_range_start = start;
-    this->_servo_range_end = end;
+    this->_servo.set_scan_range(start, end);
 }
 
 void Rolley::servo_scan()
 {
-    if (this->servo_pos <= this->_servo_range_start) {
-        this->servo_set_position(this->_servo_range_start);
-        this->servo_pos = this->_servo_range_start;
-        delay(50);
-    }
-
-    if (this->servo_pos >= this->_servo_range_end) {
-        this->servo_set_position(this->_servo_range_end);
-        this->servo_pos = this->_servo_range_end;
-        delay(50);
-    }
-
-    if (this->servo_pos + this->servo_increment > this->_servo_range_end) {
-        this->servo_increment = -1;
-    }
-    if (this->servo_pos + this->servo_increment < this->_servo_range_start) {
-        this->servo_increment = 1;
-    }
-    this->servo_pos += this->servo_increment;
-    this->servo_set_position(this->servo_pos);
-    delay(10);
+    this->_servo.scan();
 }
 
 //
@@ -229,6 +200,9 @@ void Rolley::motor_test()
 
 void Rolley::sensor_test()
 {
-    this->bump_update();
-    Serial.println(this->_bump.test());
+    String status = String("");
+    status += this->_servo.test();
+    status += '|';
+    status += this->_bump.test();
+    Serial.println(status);
 }

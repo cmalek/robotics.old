@@ -82,7 +82,6 @@ namespace rolley
         response += this->is_front_bump() ? "BF" : "0";
         response += ";";
         response += this->is_right_bump() ? "BR" : "0";
-        response += ";";
         return(response);
     }
 }
