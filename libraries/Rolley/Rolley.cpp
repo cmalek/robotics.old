@@ -16,12 +16,10 @@ Rolley::Rolley() :
 void Rolley::setup() 
 {
     // Setup motors
-    pinMode(LEFT_MOTOR_DIRECTION_PIN, OUTPUT);
-    pinMode(RIGHT_MOTOR_DIRECTION_PIN, OUTPUT);
-    pinMode(LEFT_MOTOR_SPEED_PIN, OUTPUT);
-    pinMode(RIGHT_MOTOR_SPEED_PIN, OUTPUT);
-    digitalWrite(LEFT_MOTOR_SPEED_PIN, LOW);
-    digitalWrite(RIGHT_MOTOR_SPEED_PIN, LOW);
+    this->_motors.setup(LEFT_MOTOR_DIRECTION_PIN,
+                        LEFT_MOTOR_SPEED_PIN,
+                        RIGHT_MOTOR_DIRECTION_PIN,
+                        RIGHT_MOTOR_SPEED_PIN);
 
     // Setup servo
     this->servo->attach(SERVO_PIN);
@@ -63,10 +61,7 @@ void Rolley::forward(uint8_t speed)
      *
      * param speed: 0-250
      */
-    analogWrite (LEFT_MOTOR_SPEED_PIN, speed);
-    digitalWrite(LEFT_MOTOR_DIRECTION_PIN, MOTOR_FORWARD);    
-    analogWrite (RIGHT_MOTOR_SPEED_PIN, speed);    
-    digitalWrite(RIGHT_MOTOR_DIRECTION_PIN, MOTOR_FORWARD);
+    this->_motors.forward(speed);
 }
 
 void Rolley::backward(uint8_t speed)
@@ -76,10 +71,7 @@ void Rolley::backward(uint8_t speed)
      *
      * param speed: 0-250
      */
-    analogWrite (LEFT_MOTOR_SPEED_PIN, speed);
-    digitalWrite(LEFT_MOTOR_DIRECTION_PIN, MOTOR_REVERSE);    
-    analogWrite (RIGHT_MOTOR_SPEED_PIN, speed);    
-    digitalWrite(RIGHT_MOTOR_DIRECTION_PIN, MOTOR_REVERSE);
+    this->_motors.backward(speed);
 }
 
 void Rolley::spin(uint8_t direction, uint8_t speed)
@@ -90,23 +82,12 @@ void Rolley::spin(uint8_t direction, uint8_t speed)
      * param direction: LEFT or RIGHT
      * param speed: 0-250
      */
-    analogWrite (LEFT_MOTOR_SPEED_PIN, speed);
-    analogWrite (RIGHT_MOTOR_SPEED_PIN, speed);    
-    if (direction == LEFT) {
-        digitalWrite(LEFT_MOTOR_DIRECTION_PIN, MOTOR_REVERSE);    
-        digitalWrite(RIGHT_MOTOR_DIRECTION_PIN, MOTOR_FORWARD);
-    } else {
-        digitalWrite(LEFT_MOTOR_DIRECTION_PIN, MOTOR_FORWARD);    
-        digitalWrite(RIGHT_MOTOR_DIRECTION_PIN, MOTOR_REVERSE);
-    }
+    this->_motors.spin(direction, speed);
 }
 
 void Rolley::stop()
 {
-    analogWrite (LEFT_MOTOR_SPEED_PIN, 0);
-    digitalWrite(LEFT_MOTOR_DIRECTION_PIN, MOTOR_REVERSE);    
-    analogWrite (RIGHT_MOTOR_SPEED_PIN, 0);    
-    digitalWrite(RIGHT_MOTOR_DIRECTION_PIN, MOTOR_REVERSE);
+    this->_motors.stop();
 }
 
 //
@@ -272,17 +253,7 @@ float Rolley::encoders_reset_right_distance()
 
 void Rolley::motor_test()
 {
-    this->forward(250);
-    delay(2000);
-    this->backward(250);
-    delay(2000);
-    this->spin(LEFT, 250);
-    delay(2000);
-    this->spin(RIGHT, 250);
-    delay(2000);
-    this->stop();
-    delay(2000);
-
+    this->_motors.test();
 }
 
 void Rolley::sensor_test()
