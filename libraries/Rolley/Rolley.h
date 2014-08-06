@@ -3,9 +3,9 @@
 
 #include <Servo.h>
 #include <NewPing.h>
-#include <Bounce2.h>
 #include <Encoders.h>
 #include <Drive.h>
+#include <Bump.h>
 
 // Motors 
 #define LEFT_MOTOR_DIRECTION_PIN    4
@@ -94,10 +94,7 @@ class Rolley
         int _servo_range_end;
 
         rolley::Drive _motors;
-
-        Bounce _left_bump;
-        Bounce _middle_bump;
-        Bounce _right_bump;
+        rolley::Bump _bump;
 
         Encoders _encoders;
 };

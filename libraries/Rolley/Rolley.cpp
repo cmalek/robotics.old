@@ -26,20 +26,7 @@ void Rolley::setup()
     this->servo_set_position(this->servo_pos);
     delay(100);
 
-    // Setup bump sensors
-    pinMode(BUMP_LEFT_PIN, INPUT);
-    digitalWrite(BUMP_LEFT_PIN, HIGH); // Turn on pullup resistor
-    pinMode(BUMP_MIDDLE_PIN, INPUT);
-    digitalWrite(BUMP_MIDDLE_PIN, HIGH); // Turn on pullup resistor
-    pinMode(BUMP_RIGHT_PIN, INPUT);
-    digitalWrite(BUMP_RIGHT_PIN, HIGH); // Turn on pullup resistor
-
-    this->_left_bump.attach(BUMP_LEFT_PIN); 
-    this->_left_bump.interval(5);
-    this->_middle_bump.attach(BUMP_MIDDLE_PIN); 
-    this->_middle_bump.interval(5);
-    this->_right_bump.attach(BUMP_RIGHT_PIN); 
-    this->_right_bump.interval(5);
+    this->_bump.setup(BUMP_LEFT_PIN, BUMP_MIDDLE_PIN, BUMP_RIGHT_PIN);
     //
     // Setup wheel encoders
     this->_encoders = Encoders();
@@ -184,43 +171,27 @@ boolean Rolley::is_right_cliff()
 
 boolean Rolley::bump_update()
 {
-    this->_left_bump.update();
-    this->_right_bump.update();
-    this->_middle_bump.update();
+    this->_bump.update();
 }
 
 boolean Rolley::is_bump()
 {
-    this->bump_update();
-    int left = this->_left_bump.read();
-    int right = this->_right_bump.read();
-    int middle = this->_middle_bump.read();
-    return((left == LOW) || (middle == LOW) || (right == LOW));
+    return(this->_bump.is_bump());
 }
 
 boolean Rolley::is_front_bump()
 {
-    this->bump_update();
-    int middle = this->_middle_bump.read();
-    return(middle == LOW);
+    return(this->_bump.is_front_bump());
 }
 
 boolean Rolley::is_left_bump()
 {
-    this->bump_update();
-    int left = this->_left_bump.read();
-    int right = this->_right_bump.read();
-    int middle = this->_middle_bump.read();
-    return((left == LOW) && (middle != LOW) && (right != LOW));
+    return(this->_bump.is_left_bump());
 }
 
 boolean Rolley::is_right_bump()
 {
-    this->bump_update();
-    int left = this->_left_bump.read();
-    int right = this->_right_bump.read();
-    int middle = this->_middle_bump.read();
-    return((right == LOW) && (middle != LOW) && (left != LOW));
+    return(this->_bump.is_right_bump());
 }
 
 //
@@ -259,27 +230,5 @@ void Rolley::motor_test()
 void Rolley::sensor_test()
 {
     this->bump_update();
-    this->servo_scan();
-    Serial.print("POS:");
-    Serial.print(this->servo_pos);
-    Serial.print("\tI:");
-    Serial.print(this->servo_increment);
-    Serial.print("\tD:");
-    Serial.print(this->sonar_get_distance());
-    Serial.print("\t\t||\t");
-    Serial.print(this->is_left_bump() ? "BL" : "0");
-    Serial.print("\t");
-    Serial.print(this->is_front_bump() ? "BF" : "0");
-    Serial.print("\t");
-    Serial.print(this->is_right_bump() ? "BR" : "0");
-    Serial.print("\t||\t");
-    Serial.print(this->is_left_cliff() ? "CL" : "0");
-    Serial.print("\t");
-    Serial.print(this->is_front_cliff() ? "CF" : "0");
-    Serial.print("\t");
-    Serial.print(this->is_right_cliff() ? "CR" : "0");
-    Serial.print("\t||\tEL:");
-    Serial.print(this->encoders_left_distance());
-    Serial.print("\t||\tER:");
-    Serial.println(this->encoders_right_distance());
+    Serial.println(this->_bump.test());
 }

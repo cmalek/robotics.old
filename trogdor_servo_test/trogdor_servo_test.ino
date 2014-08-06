@@ -13,9 +13,10 @@ void setup() {
   robot.servo = &servo;
   robot.sonar = &sonar;
   robot.setup();
+  Serial.begin(115200);
 }
 
 void loop() {  
-  robot.motor_test();
+  robot.sensor_test();
 }
   
