@@ -12,9 +12,11 @@
 #define RIGHT_MOTOR_SPEED_PIN       6
 #define RIGHT_MOTOR_DIRECTION_PIN   7
 
+// Servo
+#define SERVO_PIN                   9
+
 // Sonar
 #define SONAR_TRIGGER_PIN           8
-#define SERVO_PIN                   9
 #define SONAR_ECHO_PIN              10
 
 // Bump Sensors
@@ -33,6 +35,7 @@
 /* =======================
  * Other definitions
  * ======================= */
+
 #define LEFT                        1
 #define RIGHT                       2
 
@@ -46,40 +49,53 @@ class Rolley
 {
     public:
         Rolley();
-        Rolley(uint8_t _obstacle_distance);
+        void setup();
+
         void forward(uint8_t speed);
         void backward(uint8_t speed);
         void spin(uint8_t direction, uint8_t speed);
         void stop();
-        boolean is_cliff();
-        boolean is_front_cliff();
-        boolean is_left_cliff();
-        boolean is_right_cliff();
+
+        NewPing *sonar;
+        float sonar_get_distance();
+        boolean is_sonar_wall();
+
+        Servo *servo;
+        int servo_get_position();
+        void servo_set_position(int);
+        void servo_set_scan_range(int, int);
+        void servo_scan();
+        int servo_pos;
+        int servo_increment;
+
         boolean bump_update();
         boolean is_bump();
         boolean is_front_bump();
         boolean is_left_bump();
         boolean is_right_bump();
-        float sonar_get_distance();
-        boolean is_sonar_wall();
-        uint8_t servo_get_position();
-        void servo_set_position(int);
-        void servo_set_scan_range(uint8_t, uint8_t);
-        void servo_scan();
+
+        boolean is_cliff();
+        boolean is_front_cliff();
+        boolean is_left_cliff();
+        boolean is_right_cliff();
+
         float encoders_left_distance();
         float encoders_reset_left_distance();
         float encoders_right_distance();
         float encoders_reset_right_distance();
+
+        void motor_test();
+        void sensor_test();
     private:
-        void setup();
         uint8_t _sonar_obstacle_distance;
-        uint8_t _servo_range_start;
-        uint8_t _servo_range_end;
-        NewPing *_sonar;
-        Servo *_myservo;
+
+        int _servo_range_start;
+        int _servo_range_end;
+
         Bounce _left_bump;
         Bounce _middle_bump;
         Bounce _right_bump;
+
         Encoders _encoders;
 };
 #endif

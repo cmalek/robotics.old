@@ -5,29 +5,16 @@
 #endif
 #include <Rolley.h>
 
-static uint8_t current_pos = 0;
-static uint8_t increment = 1;
-
 Rolley::Rolley() : 
-    _sonar_obstacle_distance(SONAR_OBSTACLE_DISTANCE),
     _servo_range_start(0),
-    _servo_range_end(180)
-{
-    setup();
-}
-
-Rolley::Rolley(uint8_t _obstacle_distance) : 
-    _sonar_obstacle_distance(_obstacle_distance),
-    _servo_range_start(0),
-    _servo_range_end(180)
-{
-    setup();
-}
+    _servo_range_end(180),
+    servo_pos(90),
+    servo_increment(1),
+    _sonar_obstacle_distance(SONAR_OBSTACLE_DISTANCE)
+{}
 
 void Rolley::setup() 
 {
-    Servo myservo;
-
     // Setup motors
     pinMode(LEFT_MOTOR_DIRECTION_PIN, OUTPUT);
     pinMode(RIGHT_MOTOR_DIRECTION_PIN, OUTPUT);
@@ -35,13 +22,11 @@ void Rolley::setup()
     pinMode(RIGHT_MOTOR_SPEED_PIN, OUTPUT);
     digitalWrite(LEFT_MOTOR_SPEED_PIN, LOW);
     digitalWrite(RIGHT_MOTOR_SPEED_PIN, LOW);
- 
-    // Setup sonar
-    this->_sonar = &NewPing(SONAR_TRIGGER_PIN, SONAR_ECHO_PIN, SONAR_MAX_DISTANCE);
 
     // Setup servo
-    this->_myservo = &myservo;
-    this->_myservo->attach(SERVO_PIN);
+    this->servo->attach(SERVO_PIN);
+    this->servo_set_position(this->servo_pos);
+    delay(100);
 
     // Setup bump sensors
     pinMode(BUMP_LEFT_PIN, INPUT);
@@ -57,15 +42,19 @@ void Rolley::setup()
     this->_middle_bump.interval(5);
     this->_right_bump.attach(BUMP_RIGHT_PIN); 
     this->_right_bump.interval(5);
-
+    //
     // Setup wheel encoders
     this->_encoders = Encoders();
     this->_encoders.setup();
-
+ 
     // Setup cliff sensors
     pinMode(CLIFF_LEFT_PIN, INPUT);
     pinMode(CLIFF_RIGHT_PIN, INPUT);
 }
+
+//
+// MOTORS
+//
 
 void Rolley::forward(uint8_t speed)
 {
@@ -121,12 +110,75 @@ void Rolley::stop()
 }
 
 //
+// SONAR
+//
+
+float Rolley::sonar_get_distance()
+{
+  return(this->sonar->ping_median() / US_ROUNDTRIP_CM);
+}
+
+boolean Rolley::is_sonar_wall()
+{
+  float cm = this->sonar_get_distance();
+  if ((cm > 0) && (cm < this->_sonar_obstacle_distance)) {
+    return true;
+  }
+  return false;
+}
+
+//
+// SERVO
+//
+
+int Rolley::servo_get_position()
+{
+    return (this->servo_pos);
+}
+
+void Rolley::servo_set_position(int pos)
+{
+    this->servo->write(pos);
+}
+
+void Rolley::servo_set_scan_range(int start = 0, int end = 180)
+{
+    this->_servo_range_start = start;
+    this->_servo_range_end = end;
+}
+
+void Rolley::servo_scan()
+{
+    if (this->servo_pos <= this->_servo_range_start) {
+        this->servo_set_position(this->_servo_range_start);
+        this->servo_pos = this->_servo_range_start;
+        delay(50);
+    }
+
+    if (this->servo_pos >= this->_servo_range_end) {
+        this->servo_set_position(this->_servo_range_end);
+        this->servo_pos = this->_servo_range_end;
+        delay(50);
+    }
+
+    if (this->servo_pos + this->servo_increment > this->_servo_range_end) {
+        this->servo_increment = -1;
+    }
+    if (this->servo_pos + this->servo_increment < this->_servo_range_start) {
+        this->servo_increment = 1;
+    }
+    this->servo_pos += this->servo_increment;
+    this->servo_set_position(this->servo_pos);
+    delay(10);
+}
+
+//
 // CLIFF
 //
 
 boolean Rolley::is_cliff()
 {
-    return(digitalRead(CLIFF_LEFT_PIN) || digitalRead(CLIFF_RIGHT_PIN));
+    return(this->is_left_cliff() || this->is_front_cliff() || this->is_right_cliff());
 }
 
 boolean Rolley::is_front_cliff()
@@ -141,8 +193,9 @@ boolean Rolley::is_left_cliff()
 
 boolean Rolley::is_right_cliff()
 {
-    return(digitalRead(CLIFF_LEFT_PIN) && !digitalRead(CLIFF_RIGHT_PIN));
+    return(digitalRead(CLIFF_RIGHT_PIN) && !digitalRead(CLIFF_LEFT_PIN));
 }
+
 
 //
 // BUMP
@@ -190,69 +243,8 @@ boolean Rolley::is_right_bump()
 }
 
 //
-// SONAR
-//
-
-float Rolley::sonar_get_distance()
-{
-  return(this->_sonar->ping_median() / US_ROUNDTRIP_CM);
-}
-
-boolean Rolley::is_sonar_wall()
-{
-  float cm = this->sonar_get_distance();
-  if ((cm > 0) && (cm < this->_sonar_obstacle_distance)) {
-    return true;
-  }
-  return false;
-}
-
-//
-// SERVO
-//
-
-uint8_t Rolley::servo_get_position()
-{
-    return (this->_myservo->read());
-}
-
-void Rolley::servo_set_position(int pos)
-{
-    this->_myservo->write(pos);
-}
-
-void Rolley::servo_set_scan_range(uint8_t start = 0, uint8_t end = 180)
-{
-    this->_servo_range_start = start;
-    this->_servo_range_end = end;
-}
-
-void Rolley::servo_scan()
-{
-    current_pos = this->servo_get_position();
-
-    if (current_pos < this->_servo_range_start) {
-        this->servo_set_position(this->_servo_range_start);
-        current_pos = this->_servo_range_start;
-        delay(50);
-    }
-
-    if (current_pos > this->_servo_range_end) {
-        this->servo_set_position(this->_servo_range_end);
-        current_pos = this->_servo_range_end;
-        delay(50);
-    }
-
-    if (current_pos + increment > this->_servo_range_start) {
-        increment = -1;
-    }
-    if (current_pos + increment < this->_servo_range_end) {
-        increment = 1;
-    }
-    current_pos += increment;
-    this->servo_set_position(current_pos);
-    delay(50);
-}
+// ENCODERS
+// 
 
 float Rolley::encoders_left_distance()
 {
@@ -274,3 +266,49 @@ float Rolley::encoders_reset_right_distance()
     this->_encoders.reset_right();
 }
 
+// 
+// TEST
+//
+
+void Rolley::motor_test()
+{
+    this->forward(250);
+    delay(2000);
+    this->backward(250);
+    delay(2000);
+    this->spin(LEFT, 250);
+    delay(2000);
+    this->spin(RIGHT, 250);
+    delay(2000);
+    this->stop();
+    delay(2000);
+
+}
+
+void Rolley::sensor_test()
+{
+    this->bump_update();
+    this->servo_scan();
+    Serial.print("POS:");
+    Serial.print(this->servo_pos);
+    Serial.print("\tI:");
+    Serial.print(this->servo_increment);
+    Serial.print("\tD:");
+    Serial.print(this->sonar_get_distance());
+    Serial.print("\t\t||\t");
+    Serial.print(this->is_left_bump() ? "BL" : "0");
+    Serial.print("\t");
+    Serial.print(this->is_front_bump() ? "BF" : "0");
+    Serial.print("\t");
+    Serial.print(this->is_right_bump() ? "BR" : "0");
+    Serial.print("\t||\t");
+    Serial.print(this->is_left_cliff() ? "CL" : "0");
+    Serial.print("\t");
+    Serial.print(this->is_front_cliff() ? "CF" : "0");
+    Serial.print("\t");
+    Serial.print(this->is_right_cliff() ? "CR" : "0");
+    Serial.print("\t||\tEL:");
+    Serial.print(this->encoders_left_distance());
+    Serial.print("\t||\tER:");
+    Serial.println(this->encoders_right_distance());
+}

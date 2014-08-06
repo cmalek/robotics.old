@@ -5,7 +5,7 @@
 #define ECHO_PIN     10
 #define MAX_DISTANCE 200
 
-
+lk
 Servo myservo;  // create servo object to control a servo 
                 // a maximum of eight servo objects can be created 
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
