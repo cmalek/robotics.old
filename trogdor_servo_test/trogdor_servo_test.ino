@@ -16,4 +16,3 @@ void setup() {
 void loop() {  
   robot.sensor_test();
 }
-  

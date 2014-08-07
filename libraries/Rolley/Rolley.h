@@ -6,6 +6,7 @@
 #include <Bump.h>
 #include <RolleyServo.h>
 #include <Sonar.h>
+#include <Cliff.h>
 
 // Motors 
 #define LEFT_MOTOR_DIRECTION_PIN    4
@@ -82,5 +83,6 @@ class Rolley
         rolley::RolleyServo _servo;
         rolley::Sonar _sonar;
         rolley::Encoders _encoders;
+        rolley::Cliff _cliff;
 };
 #endif

@@ -18,10 +18,7 @@ void Rolley::setup(Servo *servo, NewPing *sonar)
     this->_bump.setup(BUMP_LEFT_PIN, BUMP_MIDDLE_PIN, BUMP_RIGHT_PIN);
     this->_sonar.setup(sonar);
     this->_encoders.setup();
- 
-    // Setup cliff sensors
-    pinMode(CLIFF_LEFT_PIN, INPUT);
-    pinMode(CLIFF_RIGHT_PIN, INPUT);
+    this->_cliff.setup(CLIFF_LEFT_PIN, CLIFF_RIGHT_PIN);
 }
 
 //
@@ -108,22 +105,22 @@ void Rolley::servo_scan()
 
 boolean Rolley::is_cliff()
 {
-    return(this->is_left_cliff() || this->is_front_cliff() || this->is_right_cliff());
+    return(this->_cliff.is_cliff());
 }
 
 boolean Rolley::is_front_cliff()
 {
-    return(digitalRead(CLIFF_LEFT_PIN) && digitalRead(CLIFF_RIGHT_PIN));
+    return(this->_cliff.is_front_cliff());
 }
 
 boolean Rolley::is_left_cliff()
 {
-    return(digitalRead(CLIFF_LEFT_PIN) && !digitalRead(CLIFF_RIGHT_PIN));
+    return(this->_cliff.is_left_cliff());
 }
 
 boolean Rolley::is_right_cliff()
 {
-    return(digitalRead(CLIFF_RIGHT_PIN) && !digitalRead(CLIFF_LEFT_PIN));
+    return(this->_cliff.is_right_cliff());
 }
 
 
@@ -199,5 +196,7 @@ void Rolley::sensor_test()
     status += this->_bump.test();
     status += '|';
     status += this->_encoders.test();
+    status += '|';
+    status += this->_cliff.test();
     Serial.println(status);
 }
