@@ -5,7 +5,7 @@
 
 Servo servo;
 NewPing sonar(SONAR_TRIGGER_PIN, SONAR_ECHO_PIN, SONAR_MAX_DISTANCE);
-Rolley robot = Rolley();
+rolley::Rolley robot = rolley::Rolley();
 
 
 void setup() {
@@ -14,5 +14,5 @@ void setup() {
 }
 
 void loop() {  
-  robot.sensor_test();
+  robot.motor_test();
 }

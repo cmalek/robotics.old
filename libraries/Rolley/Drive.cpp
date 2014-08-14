@@ -29,6 +29,15 @@ namespace rolley
         digitalWrite(this->_right_direction_pin, LOW);
     }
 
+    uint8_t Drive::convert_speed(uint8_t speed)
+    {
+        if (speed > 0) {
+            return(map(speed, 1, 100, 110, 255));
+        } else {
+            return(0);
+        }
+    }
+
     void Drive::forward(uint8_t speed)
     {
         /* 
@@ -36,9 +45,10 @@ namespace rolley
         *
         * param speed: 0-250
         */
-        analogWrite (this->_left_speed_pin, speed);
+        int act_speed = this->convert_speed(speed);
+        analogWrite (this->_left_speed_pin, act_speed);
         digitalWrite(this->_left_direction_pin, MOTOR_FORWARD);    
-        analogWrite (this->_right_speed_pin, speed);    
+        analogWrite (this->_right_speed_pin, act_speed);    
         digitalWrite(this->_right_direction_pin, MOTOR_FORWARD);
     }
 
@@ -47,11 +57,12 @@ namespace rolley
         /* 
         * Go backward
         *
-        * param speed: 0-250
+        * param speed: 0-100
         */
-        analogWrite (this->_left_speed_pin, speed);
+        int act_speed = this->convert_speed(speed);
+        analogWrite (this->_left_speed_pin, act_speed);
         digitalWrite(this->_left_direction_pin, MOTOR_REVERSE);    
-        analogWrite (this->_right_speed_pin, speed);    
+        analogWrite (this->_right_speed_pin, act_speed);    
         digitalWrite(this->_right_direction_pin, MOTOR_REVERSE);
     }
 
@@ -63,8 +74,9 @@ namespace rolley
         * param direction: LEFT or RIGHT
         * param speed: 0-250
         */
-        analogWrite (this->_left_speed_pin, speed);
-        analogWrite (this->_right_speed_pin, speed);    
+        int act_speed = this->convert_speed(speed);
+        analogWrite (this->_left_speed_pin, act_speed);
+        analogWrite (this->_right_speed_pin, act_speed);    
         if (direction == LEFT) {
             digitalWrite(this->_left_direction_pin, MOTOR_REVERSE);    
             digitalWrite(this->_right_direction_pin, MOTOR_FORWARD);
@@ -88,13 +100,13 @@ namespace rolley
 
     void Drive::test()
     {
-        this->forward(250);
+        this->forward(100);
         delay(2000);
-        this->backward(250);
+        this->backward(100);
         delay(2000);
-        this->spin(LEFT, 250);
+        this->spin(LEFT, 100);
         delay(2000);
-        this->spin(RIGHT, 250);
+        this->spin(RIGHT, 100);
         delay(2000);
         this->stop();
         delay(2000);

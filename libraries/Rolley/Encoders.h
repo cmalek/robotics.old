@@ -67,6 +67,7 @@ namespace rolley
 
             String test();
         private:
+            float convert(int);
 
     };
 }

@@ -26,6 +26,7 @@ namespace rolley
 
             void test();
         private:
+            uint8_t convert_speed(uint8_t);
             uint8_t _left_direction_pin;
             uint8_t _left_speed_pin;
             uint8_t _right_direction_pin;

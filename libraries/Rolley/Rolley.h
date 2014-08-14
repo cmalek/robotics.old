@@ -40,49 +40,56 @@
 
 #define SONAR_MAX_DISTANCE          200
 
-class Rolley
+namespace rolley
 {
-    public:
-        Rolley();
-        void setup(Servo *, NewPing *);
+    class Rolley
+    {
+        public:
+            Rolley();
+            void setup(Servo *, NewPing *);
 
-        void forward(uint8_t speed);
-        void backward(uint8_t speed);
-        void spin(uint8_t direction, uint8_t speed);
-        void stop();
+            void forward(uint8_t speed);
+            void forward_cm(uint8_t speed, float meters);
+            void backward(uint8_t speed);
+            void backward_cm(uint8_t speed, float meters);
+            void spin(uint8_t direction, uint8_t speed);
+            void stop();
 
-        float sonar_get_distance();
-        boolean is_sonar_wall();
+            float sonar_get_distance();
+            boolean is_sonar_wall();
 
-        int servo_get_position();
-        void servo_set_position(int);
-        void servo_set_scan_range(int, int);
-        void servo_scan();
+            int servo_get_position();
+            void servo_set_position(int);
+            void servo_set_scan_range(int, int);
+            void servo_scan();
 
-        boolean bump_update();
-        boolean is_bump();
-        boolean is_front_bump();
-        boolean is_left_bump();
-        boolean is_right_bump();
+            boolean bump_update();
+            boolean is_bump();
+            boolean is_front_bump();
+            boolean is_left_bump();
+            boolean is_right_bump();
 
-        boolean is_cliff();
-        boolean is_front_cliff();
-        boolean is_left_cliff();
-        boolean is_right_cliff();
+            boolean is_cliff();
+            boolean is_front_cliff();
+            boolean is_left_cliff();
+            boolean is_right_cliff();
 
-        float encoders_left_distance();
-        float encoders_reset_left_distance();
-        float encoders_right_distance();
-        float encoders_reset_right_distance();
+            float encoders_left_distance();
+            void encoders_reset_left_distance();
+            float encoders_right_distance();
+            void encoders_reset_right_distance();
+            float encoders_reset();
 
-        void motor_test();
-        void sensor_test();
-    private:
-        rolley::Drive _motors;
-        rolley::Bump _bump;
-        rolley::RolleyServo _servo;
-        rolley::Sonar _sonar;
-        rolley::Encoders _encoders;
-        rolley::Cliff _cliff;
-};
+            void motor_test();
+            void sensor_test();
+        private:
+            void move_cm(uint8_t speed, float meters, int direction);
+            rolley::Drive _motors;
+            rolley::Bump _bump;
+            rolley::RolleyServo _servo;
+            rolley::Sonar _sonar;
+            rolley::Encoders _encoders;
+            rolley::Cliff _cliff;
+    };
+}
 #endif

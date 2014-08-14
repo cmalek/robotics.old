@@ -1,26 +1,11 @@
-// Copyright (C) 2012 Mark R. Stevens
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 #include <Encoders.h>
 #include <Arduino.h>
 
-static volatile int counts1 = 0;
-static volatile int counts2 = 0;
+static volatile int left_count = 0;
+static volatile int right_count = 0;
 
-static volatile int last1 = 0;
-static volatile int last2 = 0;
+static volatile int last_left = 0;
+static volatile int last_right = 0;
 
 // Interrupt based on wheel encoder
 //
@@ -29,25 +14,25 @@ ISR(PCINT1_vect)
 
   // Get the value at the pins
   //
-  const int m1 = PINC & (1 << 4);
-  const int m2 = PINC & (1 << 5);
+  const int left = PINC & (1 << 4);
+  const int right = PINC & (1 << 5);
 
   // Determine which pin to update
   // CPM: I admit that I don't understand why we're XORing
   //      current sample with the last sample
-  if (m1 ^ last1)
+  if (left ^ last_left)
   {
-    counts1 += 1;
+    left_count += 1;
   }
-  if (m2 ^ last2)
+  if (right ^ last_right)
   {
-    counts2 += 1;
+    right_count += 1;
   }
 
   // reset
   //
-  last1 = m1;
-  last2 = m2;
+  last_left = left;
+  last_right = right;
 }
 
 namespace rolley
@@ -56,21 +41,21 @@ namespace rolley
     inline void ResetLeft()
     {
         noInterrupts();
-        counts1 = 0;
+        left_count = 0;
         interrupts();
     }
 
     inline void ResetRight()
     {
         noInterrupts();
-        counts2 = 0;
+        right_count = 0;
         interrupts();
     }
 
     inline int getRightCounts()
     {
         noInterrupts();
-        const int tmp = counts1;
+        const int tmp = left_count;
         interrupts();
         return tmp;
     }
@@ -78,18 +63,9 @@ namespace rolley
     inline int getLeftCounts()
     {
         noInterrupts();
-        const int tmp = counts2;
+        const int tmp = right_count;
         interrupts();
         return tmp;
-    }
-
-    inline float convert(int count)
-    {
-        static const float ppr = 20.0f;
-        static const float pi = 3.1416f;
-        static const float diameter = 0.0635f;
-        static const float circumference = pi * diameter;
-        return circumference * count / ppr;
     }
 
     Encoders::Encoders() {}
@@ -127,6 +103,15 @@ namespace rolley
         interrupts();
     }
 
+    float Encoders::convert(int count)
+    {
+        static const float ppr = 20.0f;
+        static const float pi = 3.1416f;
+        static const float diameter = 0.0635f;
+        static const float circumference = pi * diameter;
+        return circumference * count / ppr;
+    }
+
     void Encoders::reset_left()
     {
         ResetLeft();
@@ -138,12 +123,12 @@ namespace rolley
 
     float Encoders::left()
     {
-        return convert(getLeftCounts());
+        return this->convert(getLeftCounts());
     }
 
     float Encoders::right()
     {
-        return convert(getRightCounts());
+        return this->convert(getRightCounts());
     }
 
     String Encoders::test()

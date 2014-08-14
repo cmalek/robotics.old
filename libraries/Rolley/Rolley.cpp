@@ -5,198 +5,230 @@
 #endif
 #include <Rolley.h>
 
-Rolley::Rolley() {}
 
-void Rolley::setup(Servo *servo, NewPing *sonar) 
+namespace rolley
 {
-    // Setup motors
-    this->_motors.setup(LEFT_MOTOR_DIRECTION_PIN,
-                        LEFT_MOTOR_SPEED_PIN,
-                        RIGHT_MOTOR_DIRECTION_PIN,
-                        RIGHT_MOTOR_SPEED_PIN);
-    this->_servo.setup(servo, SERVO_PIN);
-    this->_bump.setup(BUMP_LEFT_PIN, BUMP_MIDDLE_PIN, BUMP_RIGHT_PIN);
-    this->_sonar.setup(sonar);
-    this->_encoders.setup();
-    this->_cliff.setup(CLIFF_LEFT_PIN, CLIFF_RIGHT_PIN);
-}
+    Rolley::Rolley() {}
 
-//
-// MOTORS
-//
+    void Rolley::setup(Servo *servo, NewPing *sonar) 
+    {
+        // Setup motors
+        this->_motors.setup(LEFT_MOTOR_DIRECTION_PIN,
+                            LEFT_MOTOR_SPEED_PIN,
+                            RIGHT_MOTOR_DIRECTION_PIN,
+                            RIGHT_MOTOR_SPEED_PIN);
+        this->_servo.setup(servo, SERVO_PIN);
+        this->_bump.setup(BUMP_LEFT_PIN, BUMP_MIDDLE_PIN, BUMP_RIGHT_PIN);
+        this->_sonar.setup(sonar);
+        this->_encoders.setup();
+        this->_cliff.setup(CLIFF_LEFT_PIN, CLIFF_RIGHT_PIN);
+    }
 
-void Rolley::forward(uint8_t speed)
-{
-    /* 
-     * Go forward.
-     *
-     * param speed: 0-250
-     */
-    this->_motors.forward(speed);
-}
+    //
+    // MOTORS
+    //
 
-void Rolley::backward(uint8_t speed)
-{
-    /* 
-     * Go backward
-     *
-     * param speed: 0-250
-     */
-    this->_motors.backward(speed);
-}
+    void Rolley::forward(uint8_t speed)
+    {
+        /* 
+        * Go forward.
+        *
+        * param speed: 0-250
+        */
+        this->_motors.forward(speed);
+    }
 
-void Rolley::spin(uint8_t direction, uint8_t speed)
-{
-    /* 
-     * Spin in place. 
-     *
-     * param direction: LEFT or RIGHT
-     * param speed: 0-250
-     */
-    this->_motors.spin(direction, speed);
-}
+    void Rolley::move_cm(uint8_t speed, float meters, int direction)
+        this->encoders_reset();
+        if (direction == MOTOR_FORWARD) {
+            this->forward(speed);
+        } else {
+            this->backward(speed);
+        }
+        while ((this->encoders_left_distance < cm) && (this->encoders_right_distance() < cm)) {
+            delay(100);
+        }
+        this->stop();
+    }
+    void Rolley::forward_cm(uint8_t speed, float meters)
+    {
+        this->move_cm(speed, cm, MOTOR_FORWARD);
+    }
 
-void Rolley::stop()
-{
-    this->_motors.stop();
-}
+    void Rolley::backard_cm(uint8_t speed, float meters)
+    {
+        this->move_cm(speed, cm, MOTOR_REVERSE);
+    }
 
-//
-// SONAR
-//
+    void Rolley::backward(uint8_t speed)
+    {
+        /* 
+        * Go backward
+        *
+        * param speed: 0-250
+        */
+        this->_motors.backward(speed);
+    }
 
-float Rolley::sonar_get_distance()
-{
-  return(this->_sonar.get_distance());
-}
+    void Rolley::spin(uint8_t direction, uint8_t speed)
+    {
+        /* 
+        * Spin in place. 
+        *
+        * param direction: LEFT or RIGHT
+        * param speed: 0-250
+        */
+        this->_motors.spin(direction, speed);
+    }
 
-boolean Rolley::is_sonar_wall()
-{
-  return(this->_sonar.is_wall());
-}
+    void Rolley::stop()
+    {
+        this->_motors.stop();
+    }
 
-//
-// SERVO
-//
+    //
+    // SONAR
+    //
 
-int Rolley::servo_get_position()
-{
-    return (this->_servo.get_position());
-}
+    float Rolley::sonar_get_distance()
+    {
+    return(this->_sonar.get_distance());
+    }
 
-void Rolley::servo_set_position(int pos)
-{
-    this->_servo.set_position(pos);
-}
+    boolean Rolley::is_sonar_wall()
+    {
+    return(this->_sonar.is_wall());
+    }
 
-void Rolley::servo_set_scan_range(int start = 0, int end = 180)
-{
-    this->_servo.set_scan_range(start, end);
-}
+    //
+    // SERVO
+    //
 
-void Rolley::servo_scan()
-{
-    this->_servo.scan();
-}
+    int Rolley::servo_get_position()
+    {
+        return (this->_servo.get_position());
+    }
 
-//
-// CLIFF
-//
+    void Rolley::servo_set_position(int pos)
+    {
+        this->_servo.set_position(pos);
+    }
 
-boolean Rolley::is_cliff()
-{
-    return(this->_cliff.is_cliff());
-}
+    void Rolley::servo_set_scan_range(int start = 0, int end = 180)
+    {
+        this->_servo.set_scan_range(start, end);
+    }
 
-boolean Rolley::is_front_cliff()
-{
-    return(this->_cliff.is_front_cliff());
-}
+    void Rolley::servo_scan()
+    {
+        this->_servo.scan();
+    }
 
-boolean Rolley::is_left_cliff()
-{
-    return(this->_cliff.is_left_cliff());
-}
+    //
+    // CLIFF
+    //
 
-boolean Rolley::is_right_cliff()
-{
-    return(this->_cliff.is_right_cliff());
-}
+    boolean Rolley::is_cliff()
+    {
+        return(this->_cliff.is_cliff());
+    }
+
+    boolean Rolley::is_front_cliff()
+    {
+        return(this->_cliff.is_front_cliff());
+    }
+
+    boolean Rolley::is_left_cliff()
+    {
+        return(this->_cliff.is_left_cliff());
+    }
+
+    boolean Rolley::is_right_cliff()
+    {
+        return(this->_cliff.is_right_cliff());
+    }
 
 
-//
-// BUMP
-//
+    //
+    // BUMP
+    //
 
-boolean Rolley::bump_update()
-{
-    this->_bump.update();
-}
+    boolean Rolley::bump_update()
+    {
+        this->_bump.update();
+    }
 
-boolean Rolley::is_bump()
-{
-    return(this->_bump.is_bump());
-}
+    boolean Rolley::is_bump()
+    {
+        return(this->_bump.is_bump());
+    }
 
-boolean Rolley::is_front_bump()
-{
-    return(this->_bump.is_front_bump());
-}
+    boolean Rolley::is_front_bump()
+    {
+        return(this->_bump.is_front_bump());
+    }
 
-boolean Rolley::is_left_bump()
-{
-    return(this->_bump.is_left_bump());
-}
+    boolean Rolley::is_left_bump()
+    {
+        return(this->_bump.is_left_bump());
+    }
 
-boolean Rolley::is_right_bump()
-{
-    return(this->_bump.is_right_bump());
-}
+    boolean Rolley::is_right_bump()
+    {
+        return(this->_bump.is_right_bump());
+    }
 
-//
-// ENCODERS
-// 
+    //
+    // ENCODERS
+    // 
 
-float Rolley::encoders_left_distance()
-{
-    return this->_encoders.left();
-}
+    float Rolley::encoders_left_distance()
+    {
+        return this->_encoders.left();
+    }
 
-float Rolley::encoders_reset_left_distance()
-{
-    this->_encoders.reset_left();
-}
+    void Rolley::encoders_reset_left_distance()
+    {
+        this->_encoders.reset_left();
+    }
 
-float Rolley::encoders_right_distance()
-{
-    return this->_encoders.right();
-}
+    float Rolley::encoders_right_distance()
+    {
+        return this->_encoders.right();
+    }
 
-float Rolley::encoders_reset_right_distance()
-{
-    this->_encoders.reset_right();
-}
+    void Rolley::encoders_reset_right_distance()
+    {
+        this->_encoders.reset_right();
+    }
 
-// 
-// TEST
-//
+    void Rolley::encoders_reset()
+    {
+        this->encoders_reset_left_distance();
+        this->encoders_reset_right_distance();
+    }
 
-void Rolley::motor_test()
-{
-    this->_motors.test();
-}
+    // 
+    // TEST
+    //
 
-void Rolley::sensor_test()
-{
-    String status = String("");
-    status += this->_servo.test();
-    status += '|';
-    status += this->_sonar.test();
-    status += '|';
-    status += this->_bump.test();
-    status += '|';
-    status += this->_encoders.test();
-    status += '|';
-    status += this->_cliff.test();
-    Serial.println(status);
+    void Rolley::motor_test()
+    {
+        this->_motors.test();
+    }
+
+    void Rolley::sensor_test()
+    {
+        String status = String("");
+        status += this->_servo.test();
+        status += '|';
+        status += this->_sonar.test();
+        status += '|';
+        status += this->_bump.test();
+        status += '|';
+        status += this->_encoders.test();
+        status += '|';
+        status += this->_cliff.test();
+        Serial.println(status);
+    }
 }
