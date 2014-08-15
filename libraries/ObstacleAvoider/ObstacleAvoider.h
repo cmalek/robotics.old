@@ -17,13 +17,6 @@ namespace rolley
         AVOID
     };
 
-    enum directions_t {
-        LEFT,
-        RIGHT,
-        BACK,
-        FORWARD
-    };
-
     struct context_t {
         directions_t obstacle_direction;
         directions_t desired_direction;

@@ -20,7 +20,7 @@ namespace rolley
         this->_servo.setup(servo, SERVO_PIN);
         this->_bump.setup(BUMP_LEFT_PIN, BUMP_MIDDLE_PIN, BUMP_RIGHT_PIN);
         this->_sonar.setup(sonar);
-        this->_encoders.setup();
+        this->_encoders.setup(WHEEL_BASE);
         this->_cliff.setup(CLIFF_LEFT_PIN, CLIFF_RIGHT_PIN);
     }
 
@@ -36,28 +36,32 @@ namespace rolley
         * param speed: 0-250
         */
         this->_motors.forward(speed);
+        this->_encoders.set_left_direction(FORWARD);
+        this->_encoders.set_right_direction(FORWARD);
     }
 
-    void Rolley::move_cm(uint8_t speed, float meters, int direction)
+    void Rolley::move_meters(uint8_t speed, float meters, int direction)
+    {
         this->encoders_reset();
         if (direction == MOTOR_FORWARD) {
             this->forward(speed);
         } else {
             this->backward(speed);
         }
-        while ((this->encoders_left_distance < cm) && (this->encoders_right_distance() < cm)) {
+        while (this->encoders_distance() < meters) {
             delay(100);
         }
         this->stop();
     }
-    void Rolley::forward_cm(uint8_t speed, float meters)
+
+    void Rolley::forward_meters(uint8_t speed, float meters)
     {
-        this->move_cm(speed, cm, MOTOR_FORWARD);
+        this->move_meters(speed, meters, MOTOR_FORWARD);
     }
 
-    void Rolley::backard_cm(uint8_t speed, float meters)
+    void Rolley::backward_meters(uint8_t speed, float meters)
     {
-        this->move_cm(speed, cm, MOTOR_REVERSE);
+        this->move_meters(speed, meters, MOTOR_REVERSE);
     }
 
     void Rolley::backward(uint8_t speed)
@@ -68,9 +72,11 @@ namespace rolley
         * param speed: 0-250
         */
         this->_motors.backward(speed);
+        this->_encoders.set_left_direction(BACK);
+        this->_encoders.set_right_direction(BACK);
     }
 
-    void Rolley::spin(uint8_t direction, uint8_t speed)
+    void Rolley::spin(rolley::motor_directions_t direction, uint8_t speed)
     {
         /* 
         * Spin in place. 
@@ -79,6 +85,13 @@ namespace rolley
         * param speed: 0-250
         */
         this->_motors.spin(direction, speed);
+        if (direction == LEFT_TURN) {
+            this->_encoders.set_left_direction(BACK);
+            this->_encoders.set_right_direction(FORWARD);
+        } else {
+            this->_encoders.set_left_direction(FORWARD);
+            this->_encoders.set_right_direction(BACK);
+        }
     }
 
     void Rolley::stop()
@@ -181,6 +194,12 @@ namespace rolley
     //
     // ENCODERS
     // 
+
+    float Rolley::encoders_distance()
+    {
+        return this->_encoders.distance();
+    }
+
 
     float Rolley::encoders_left_distance()
     {

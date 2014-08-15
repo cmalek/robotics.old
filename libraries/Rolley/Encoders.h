@@ -19,6 +19,7 @@
 #ifndef Encoders_h
 #define Encoders_h
 
+#include <RolleyCommon.h>
 #include <Arduino.h>
 
 namespace rolley
@@ -49,7 +50,7 @@ namespace rolley
 
             //! @brief Setup the interrupt callbacks
             //!
-            void setup();
+            void setup(int);
 
             //! @brief Compute the left distance traveled
             //!
@@ -57,6 +58,7 @@ namespace rolley
             //!
             float left();
             void reset_left();
+            void set_left_direction(rolley::directions_t);
 
             //! @brief Compute the right distance traveled
             //!
@@ -64,9 +66,15 @@ namespace rolley
             //!
             float right();
             void reset_right();
+            void set_right_direction(rolley::directions_t);
+
+            float distance();
+            float angle();
 
             String test();
         private:
+            int _wheel_width;
+
             float convert(int);
 
     };

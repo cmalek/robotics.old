@@ -5,14 +5,13 @@
  * Other definitions
  * ======================= */
 
-#define LEFT                        1
-#define RIGHT                       2
-
 #define MOTOR_FORWARD               HIGH
 #define MOTOR_REVERSE               LOW
 
 namespace rolley
 {
+    enum motor_directions_t { LEFT_TURN, RIGHT_TURN };
+
     class Drive
     {
         public:
@@ -21,7 +20,7 @@ namespace rolley
 
             void forward(uint8_t speed);
             void backward(uint8_t speed);
-            void spin(uint8_t direction, uint8_t speed);
+            void spin(rolley::motor_directions_t direction, uint8_t speed);
             void stop();
 
             void test();

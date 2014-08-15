@@ -7,6 +7,9 @@ static volatile int right_count = 0;
 static volatile int last_left = 0;
 static volatile int last_right = 0;
 
+static int left_increment = 1;
+static int right_increment = 1;
+
 // Interrupt based on wheel encoder
 //
 ISR(PCINT1_vect)
@@ -22,11 +25,11 @@ ISR(PCINT1_vect)
   //      current sample with the last sample
   if (left ^ last_left)
   {
-    left_count += 1;
+    left_count += left_increment;
   }
   if (right ^ last_right)
   {
-    right_count += 1;
+    right_count += right_increment;
   }
 
   // reset
@@ -70,8 +73,10 @@ namespace rolley
 
     Encoders::Encoders() {}
 
-    void Encoders::setup()
+    void Encoders::setup(int wheel_width)
     {
+        this->_wheel_width = wheel_width;
+
         // Make sure the pin is set for input
         //
         pinMode(LeftWheelEncoder, INPUT);
@@ -103,6 +108,32 @@ namespace rolley
         interrupts();
     }
 
+    void Encoders::set_left_direction(rolley::directions_t direction)
+    {
+        if (direction == FORWARD) {
+            left_increment = 1;
+        } else {
+            left_increment = -1;
+        }
+    }
+
+    void Encoders::set_right_direction(rolley::directions_t direction)
+    {
+        if (direction == FORWARD) {
+            right_increment = 1;
+        } else {
+            right_increment = -1;
+        }
+    }
+
+    float Encoders::angle()
+    {
+        float left_distance = this->left();
+        float right_distance = this->right();
+
+        return(((right_distance - left_distance)/this->_wheel_width)*(180/3.1415926535));
+    }
+
     float Encoders::convert(int count)
     {
         static const float ppr = 20.0f;
@@ -116,6 +147,7 @@ namespace rolley
     {
         ResetLeft();
     }
+
     void Encoders::reset_right()
     {
         ResetRight();
@@ -129,6 +161,11 @@ namespace rolley
     float Encoders::right()
     {
         return this->convert(getRightCounts());
+    }
+
+    float Encoders::distance()
+    {
+        return ((this->left() + this->right())/2);
     }
 
     String Encoders::test()

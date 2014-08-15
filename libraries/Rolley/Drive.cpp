@@ -66,18 +66,18 @@ namespace rolley
         digitalWrite(this->_right_direction_pin, MOTOR_REVERSE);
     }
 
-    void Drive::spin(uint8_t direction, uint8_t speed)
+    void Drive::spin(rolley::motor_directions_t direction, uint8_t speed)
     {
         /* 
         * Spin in place. 
         *
-        * param direction: LEFT or RIGHT
+        * param direction: LEFT_TURN or RIGHT_TURN
         * param speed: 0-250
         */
         int act_speed = this->convert_speed(speed);
         analogWrite (this->_left_speed_pin, act_speed);
         analogWrite (this->_right_speed_pin, act_speed);    
-        if (direction == LEFT) {
+        if (direction == LEFT_TURN) {
             digitalWrite(this->_left_direction_pin, MOTOR_REVERSE);    
             digitalWrite(this->_right_direction_pin, MOTOR_FORWARD);
         } else {
@@ -104,9 +104,9 @@ namespace rolley
         delay(2000);
         this->backward(100);
         delay(2000);
-        this->spin(LEFT, 100);
+        this->spin(LEFT_TURN, 100);
         delay(2000);
-        this->spin(RIGHT, 100);
+        this->spin(RIGHT_TURN, 100);
         delay(2000);
         this->stop();
         delay(2000);

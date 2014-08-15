@@ -1,12 +1,14 @@
 #ifndef Rolley_h
 #define Rolley_h
 
+#include <RolleyCommon.h>
 #include <Encoders.h>
 #include <Drive.h>
 #include <Bump.h>
 #include <RolleyServo.h>
 #include <Sonar.h>
 #include <Cliff.h>
+
 
 // Motors 
 #define LEFT_MOTOR_DIRECTION_PIN    4
@@ -39,6 +41,7 @@
  * ======================= */
 
 #define SONAR_MAX_DISTANCE          200
+#define WHEEL_BASE                  15 
 
 namespace rolley
 {
@@ -49,10 +52,10 @@ namespace rolley
             void setup(Servo *, NewPing *);
 
             void forward(uint8_t speed);
-            void forward_cm(uint8_t speed, float meters);
+            void forward_meters(uint8_t speed, float meters);
             void backward(uint8_t speed);
-            void backward_cm(uint8_t speed, float meters);
-            void spin(uint8_t direction, uint8_t speed);
+            void backward_meters(uint8_t speed, float meters);
+            void spin(rolley::motor_directions_t direction, uint8_t speed);
             void stop();
 
             float sonar_get_distance();
@@ -78,12 +81,13 @@ namespace rolley
             void encoders_reset_left_distance();
             float encoders_right_distance();
             void encoders_reset_right_distance();
-            float encoders_reset();
+            float encoders_distance();
+            void encoders_reset();
 
             void motor_test();
             void sensor_test();
         private:
-            void move_cm(uint8_t speed, float meters, int direction);
+            void move_meters(uint8_t speed, float meters, int direction);
             rolley::Drive _motors;
             rolley::Bump _bump;
             rolley::RolleyServo _servo;
